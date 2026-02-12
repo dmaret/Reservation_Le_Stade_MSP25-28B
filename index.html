@@ -698,16 +698,33 @@
 
             let html = '';
             const personnesCount = {};
+            let totalPlats = 0;
 
             for (const [plat, noms] of Object.entries(commandes)) {
                 if (noms.length > 0) {
                     html += `<div class="summary-item"><strong>${plat}</strong> : ${noms.join(', ')}</div>`;
+                    totalPlats += noms.length;
                     
                     noms.forEach(nom => {
                         personnesCount[nom] = (personnesCount[nom] || 0) + 1;
                     });
                 }
             }
+
+            // Ajouter les totaux en haut
+            const totalPersonnes = Object.keys(personnesCount).length;
+            html = `
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-around; text-align: center;">
+                    <div>
+                        <div style="font-size: 2em; font-weight: bold;">${totalPersonnes}</div>
+                        <div style="font-size: 0.9em; opacity: 0.9;">Participant${totalPersonnes > 1 ? 's' : ''}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 2em; font-weight: bold;">${totalPlats}</div>
+                        <div style="font-size: 0.9em; opacity: 0.9;">Plat${totalPlats > 1 ? 's' : ''} commandé${totalPlats > 1 ? 's' : ''}</div>
+                    </div>
+                </div>
+            ` + html;
 
             html += '<hr style="margin: 20px 0;">';
             html += '<div style="font-weight: bold; margin-bottom: 10px;">Nombre de plats par personne :</div>';
