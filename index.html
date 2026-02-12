@@ -586,6 +586,20 @@
                     const platName = document.createElement('div');
                     platName.className = 'plat-name';
                     platName.textContent = plat;
+                    
+                    // Ajouter un bouton de suppression pour les plats personnalisés
+                    if (category.startsWith('Texte Libre')) {
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.textContent = '🗑️';
+                        deleteBtn.style.cssText = 'background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-left: 10px; font-size: 1.2em;';
+                        deleteBtn.title = 'Supprimer ce plat';
+                        deleteBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            deleteCustomPlat(category, plat);
+                        };
+                        platName.appendChild(deleteBtn);
+                    }
+                    
                     platDiv.appendChild(platName);
 
                     const personnesList = document.createElement('div');
@@ -684,6 +698,31 @@
                     }
                 } else {
                     alert('Ce plat existe déjà dans cette catégorie.');
+                }
+            }
+        }
+
+        async function deleteCustomPlat(category, plat) {
+            if (confirm(`Supprimer "${plat}" de la liste ?`)) {
+                const index = platsData[category].indexOf(plat);
+                if (index > -1) {
+                    platsData[category].splice(index, 1);
+                    
+                    // Supprimer aussi les commandes associées à ce plat
+                    if (commandes[plat]) {
+                        delete commandes[plat];
+                        try {
+                            await set(ref(database, 'commandes'), commandes);
+                        } catch (error) {
+                            alert('Erreur lors de la suppression des commandes: ' + error.message);
+                        }
+                    }
+                    
+                    try {
+                        await set(ref(database, 'platsData'), platsData);
+                    } catch (error) {
+                        alert('Erreur lors de la suppression: ' + error.message);
+                    }
                 }
             }
         }
