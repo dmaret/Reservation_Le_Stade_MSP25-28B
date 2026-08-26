@@ -1,0 +1,28 @@
+name: Déployer sur Infomaniak
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Préparer les fichiers à déployer
+        run: |
+          mkdir -p "$RUNNER_TEMP/deploy/reservation-le-stade"
+          cp -v *.html *.json *.js *.css *.md "$RUNNER_TEMP/deploy/reservation-le-stade/" 2>/dev/null || true
+
+      - name: Déployer via FTPS
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.INFOMANIAK_FTP_SERVER }}
+          username: ${{ secrets.INFOMANIAK_FTP_USERNAME }}
+          password: ${{ secrets.INFOMANIAK_FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ${{ runner.temp }}/deploy/
+          server-dir: /sites/tykka-lab.ch/
