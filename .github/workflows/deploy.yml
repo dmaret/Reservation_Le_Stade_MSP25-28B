@@ -25,4 +25,11 @@ jobs:
           password: ${{ secrets.INFOMANIAK_FTP_PASSWORD }}
           protocol: ftps
           local-dir: ${{ runner.temp }}/deploy/
+          # Domaine tykka-lab.ch -> /sites/tykka-lab.ch/
+          # Accessible ensuite via https://tykka-lab.ch/reservation-le-stade/
           server-dir: /sites/tykka-lab.ch/
+          # Fichier d'état DÉDIÉ à ce projet : server-dir est la racine partagée
+          # par tous les projets déployés sur ce domaine. Sans state-name propre,
+          # tous les workflows lisent/écrasent le même fichier d'état par défaut
+          # et se mettent mutuellement en "à supprimer" au déploiement suivant.
+          state-name: .ftp-deploy-sync-state.reservation-le-stade.json
