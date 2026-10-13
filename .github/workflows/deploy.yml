@@ -15,7 +15,8 @@ jobs:
       - name: Préparer les fichiers à déployer
         run: |
           mkdir -p "$RUNNER_TEMP/deploy/reservation-le-stade"
-          cp -v *.html *.json *.js *.css *.md "$RUNNER_TEMP/deploy/reservation-le-stade/" 2>/dev/null || true
+          cp -v index.html "$RUNNER_TEMP/deploy/reservation-le-stade/"
+          cp -rv css/ js/ "$RUNNER_TEMP/deploy/reservation-le-stade/"
 
       - name: Déployer via FTPS
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -25,4 +26,11 @@ jobs:
           password: ${{ secrets.INFOMANIAK_FTP_PASSWORD }}
           protocol: ftps
           local-dir: ${{ runner.temp }}/deploy/
+          # Fichier d'état DÉDIÉ à ce projet : server-dir est la racine partagée
+          # par tous les projets déployés sur ce domaine. Sans state-name propre,
+          # tous les workflows lisent/écrasent le même fichier d'état par défaut
+          # et se mettent mutuellement en "à supprimer" au déploiement suivant
+          # (déjà arrivé une fois avec carte-competences, cf. DEPLOYMENT_PATTERN.md
+          # du dépôt travaux_bureau).
           server-dir: /sites/tykka-lab.ch/
+          state-name: .ftp-deploy-sync-state.reservation-le-stade.json
